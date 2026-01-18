@@ -183,26 +183,26 @@
 
         function render() {
             const html = `
-                <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-2">
+                <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-3">
                     <div class="max-w-6xl mx-auto">
                         <!-- Header -->
-                        <div class="text-center mb-3">
+                        <div class="text-center mb-2">
                             <h1 class="text-2xl font-bold text-white drop-shadow-lg">San Diego Dog Beach Info 🐕 🏖️</h1>
                         </div>
 
                         <!-- Timing -->
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3">
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
                             <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-3 text-white">
                                 <h2 class="text-xl font-bold">Timing 🌅 🌇 🌊 🕐</h2>
                             </div>
                             <div class="p-3 bg-gradient-to-br from-cyan-50 to-blue-50">
                                 ${loading ? `
-                                    <div class="bg-white p-4 rounded-lg text-center border border-cyan-100">
+                                    <div class="bg-white p-3 rounded-lg text-center border border-cyan-100">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600 mx-auto"></div>
                                         <p class="text-gray-600 mt-2 text-sm">Loading data...</p>
                                     </div>
                                 ` : `
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
                                         ${sunData ? `
                                             <div class="bg-white p-2 rounded-lg border border-amber-200">
                                                 <p class="text-xs font-semibold mb-1 text-amber-600">Sunrise</p>
@@ -231,11 +231,11 @@
                         </div>
 
                         <!-- Beach Conditions -->
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3 mt-1">
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2 mt-1">
                             <div class="bg-gradient-to-r from-amber-500 to-yellow-600 p-3 text-white">
                                 <h2 class="text-xl font-bold">Conditions ☀️ ⛅</h2>
                             </div>
-                            <div class="p-3">
+                            <div class="p-2">
                                 ${loading || !weatherData[0] ? `
                                     <div class="flex items-center justify-center py-4">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -288,17 +288,17 @@
                         </div>
 
                         <!-- UV Index -->
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3">
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
                             <div class="bg-gradient-to-r from-orange-600 to-yellow-500 p-3 text-white">
                                 <h2 class="text-xl font-bold">UV Index ☀️</h2>
                             </div>
-                            <div class="p-3">
+                            <div class="p-2">
                                 ${loading ? `
                                     <div class="flex items-center justify-center py-4">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600"></div>
                                     </div>
                                 ` : uvData ? `
-                                    <div class="grid grid-cols-4 gap-2">
+                                    <div class="grid grid-cols-4 gap-1">
                                         <div class="bg-yellow-50 p-2 rounded-lg border border-yellow-200">
                                             <p class="text-xs text-gray-600 mb-1">10 AM</p>
                                             <p class="text-xl font-bold text-orange-600">${uvData.uv10am !== null ? uvData.uv10am : '—'}</p>
@@ -325,17 +325,17 @@
                         </div>
 
                         <!-- Ocean Temperature -->
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3">
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
                             <div class="bg-gradient-to-r from-cyan-600 to-teal-600 p-3 text-white">
                                 <h2 class="text-xl font-bold">Ocean Temperature 🌡️</h2>
                             </div>
-                            <div class="p-3">
+                            <div class="p-2">
                                 ${loading ? `
                                     <div class="flex items-center justify-center py-4">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
                                     </div>
                                 ` : `
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-1">
                                         ${waterTempStations.map((station, idx) => {
                                             const temp = waterTempData[idx];
                                             return `
@@ -355,7 +355,7 @@
                             <div class="bg-gradient-to-r from-orange-600 to-red-600 p-3 text-white">
                                 <h2 class="text-xl font-bold">Webcams 📹</h2>
                             </div>
-                            <div class="p-3 space-y-3">
+                            <div class="p-2 space-y-3">
                                 ${beaches.map((beach, idx) => `
                                     <div>
                                         <h3 class="text-base font-bold text-gray-900 mb-2">${beach.name}</h3>
