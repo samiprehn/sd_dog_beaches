@@ -47,8 +47,8 @@
 
         const waterTempStations = [
             { name: "Del Mar", buoyId: "46266" },
-            { name: "La Jolla Shores", buoyId: "ljac1" },
-            { name: "San Diego Bay", buoyId: "sdbc1" },
+            { name: "La Jolla Shores", buoyId: "LJAC1" },
+            { name: "San Diego Bay", buoyId: "SDBC1" },
             { name: "Imperial Beach", buoyId: "46235" }
         ];
 
@@ -90,7 +90,7 @@
                 const tempC = parseFloat(dataLine[wtmpIndex]);
                 if (isNaN(tempC) || tempC === 99 || tempC === 999) return null;
                 
-                return Math.round(tempC * 9/5 + 32);
+                return (tempC * 9/5 + 32).toFixed(1);
             } catch (err) {
                 console.error(`Error fetching water temp for buoy ${buoyId}:`, err);
                 return null;
