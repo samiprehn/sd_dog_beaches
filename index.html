@@ -16,7 +16,7 @@
                 location: "San Diego",
                 lat: 32.7503,
                 lon: -117.2517,
-                waterTempBuoy: "46232", // Oceanside Offshore
+                waterTempBuoy: "46232",
                 webcams: [
                     { name: "OB Beach Cam", url: "https://oceanbeachsandiego.com/media/ob-beach-cam" }
                 ]
@@ -26,7 +26,7 @@
                 location: "Del Mar",
                 lat: 32.9595,
                 lon: -117.2654,
-                waterTempBuoy: "46266", // Del Mar Nearshore
+                waterTempBuoy: "46266",
                 webcams: [
                     { name: "Del Mar Beach North", url: "https://hdontap.com/stream/199841/del-mar-beach-north-live-webcam/" },
                     { name: "Del Mar Beach Community Ultra HD Overlook", url: "https://hdontap.com/stream/101962/del-mar-beach-community-ultra-hd-overlook-live-webcvam/" },
@@ -39,7 +39,7 @@
                 location: "Coronado",
                 lat: 32.6859,
                 lon: -117.1831,
-                waterTempBuoy: "9410170", // San Diego Bay
+                waterTempBuoy: "9410170",
                 webcams: [
                     { name: "Hotel Del Coronado North Roaming", url: "https://hdontap.com/stream/327869/hotel-del-coronado-north-roaming-live-cam/" },
                     { name: "Hotel Del Coronado 4K Roaming", url: "https://hdontap.com/stream/964952/hotel-del-coronado-4k-roaming-live-cam/" },
@@ -48,11 +48,11 @@
             }
         ];
 
-        let selectedBeachIndex = 0;
         let weatherData = {};
         let waterTempData = {};
         let tideData = null;
         let hourlyWeather = null;
+        let loading = true;
 
         const getWeatherDescription = (code) => {
             const weatherCodes = {
@@ -69,32 +69,7 @@
             return directions[Math.round(degrees / 45) % 8];
         };
 
-        async function fetchWaterTemp(buoyId) {
-            try {
-                const res = await fetch(`https://www.ndbc.noaa.gov/data/realtime2/${buoyId}.txt`);
-                if (!res.ok) return null;
-                
-                const text = await res.text();
-                const lines = text.trim().split('\n');
-                if (lines.length < 3) return null;
-                
-                const dataLine = lines[2].trim().split(/\s+/);
-                const headerLine = lines[0].trim().split(/\s+/);
-                
-                // Find WTMP (water temperature) column
-                const wtmpIndex = headerLine.indexOf('WTMP');
-                if (wtmpIndex === -1) return null;
-                
-                const tempC = parseFloat(dataLine[wtmpIndex]);
-                if (isNaN(tempC) || tempC === 99 || tempC === 999) return null;
-                
-                // Convert Celsius to Fahrenheit
-                return Math.round(tempC * 9/5 + 32);
-            } catch (err) {
-                console.error(`Error fetching water temp for buoy ${buoyId}:`, err);
-                return null;
-            }
-        }
+        const getTempAtTime = (timeStr) => {
             if (!hourlyWeather || !hourlyWeather.time || !hourlyWeather.temperature_2m) {
                 return null;
             }
@@ -113,9 +88,33 @@
             return null;
         };
 
+        async function fetchWaterTemp(buoyId) {
+            try {
+                const res = await fetch(`https://www.ndbc.noaa.gov/data/realtime2/${buoyId}.txt`);
+                if (!res.ok) return null;
+                
+                const text = await res.text();
+                const lines = text.trim().split('\n');
+                if (lines.length < 3) return null;
+                
+                const dataLine = lines[2].trim().split(/\s+/);
+                const headerLine = lines[0].trim().split(/\s+/);
+                
+                const wtmpIndex = headerLine.indexOf('WTMP');
+                if (wtmpIndex === -1) return null;
+                
+                const tempC = parseFloat(dataLine[wtmpIndex]);
+                if (isNaN(tempC) || tempC === 99 || tempC === 999) return null;
+                
+                return Math.round(tempC * 9/5 + 32);
+            } catch (err) {
+                console.error(`Error fetching water temp for buoy ${buoyId}:`, err);
+                return null;
+            }
+        }
+
         async function fetchData() {
             try {
-                // Fetch tide data once (same for all beaches)
                 const now = new Date();
                 const today = now.toISOString().split('T')[0].replace(/-/g, '');
                 const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0].replace(/-/g, '');
@@ -129,7 +128,6 @@
                     tideData = tideJson.predictions || [];
                 }
 
-                // Fetch hourly weather for temperature at tide times
                 const weatherRes = await fetch(
                     `https://api.open-meteo.com/v1/forecast?latitude=32.7503&longitude=-117.2517&hourly=temperature_2m&temperature_unit=fahrenheit&timezone=America/Los_Angeles&forecast_days=2`
                 );
@@ -139,7 +137,6 @@
                     hourlyWeather = weatherJson.hourly;
                 }
 
-                // Fetch weather for each beach
                 for (let i = 0; i < beaches.length; i++) {
                     const beach = beaches[i];
                     const res = await fetch(
@@ -151,33 +148,25 @@
                         weatherData[i] = data.current;
                     }
 
-                    // Fetch water temperature
                     const waterTemp = await fetchWaterTemp(beach.waterTempBuoy);
                     waterTempData[i] = waterTemp;
                 }
 
+                loading = false;
                 render();
             } catch (err) {
                 console.error('Error fetching data:', err);
+                loading = false;
                 render();
             }
         }
 
-        function selectBeach(index) {
-            selectedBeachIndex = index;
-            render();
-        }
-
         function render() {
-            const beach = beaches[selectedBeachIndex];
-            const weather = weatherData[selectedBeachIndex];
-            const waterTemp = waterTempData[selectedBeachIndex];
-
             const html = `
                 <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-4">
-                    <div class="max-w-4xl mx-auto">
-                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-                            <!-- Header -->
+                    <div class="max-w-6xl mx-auto">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6">
                             <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 text-white">
                                 <div class="flex items-center gap-3 mb-2">
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,15 +177,20 @@
                                 <p class="text-blue-100">Real-time weather, tides, and webcams</p>
                             </div>
 
-                            <!-- Tides (shown for all beaches) -->
-                            <div class="p-6 bg-gradient-to-br from-cyan-50 to-blue-50 border-b">
+                            <!-- Tides -->
+                            <div class="p-6 bg-gradient-to-br from-cyan-50 to-blue-50">
                                 <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                                     <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
                                     </svg>
                                     Today's Tides (San Diego Bay)
                                 </h2>
-                                ${tideData && tideData.length > 0 ? `
+                                ${loading ? `
+                                    <div class="bg-white p-8 rounded-lg text-center border border-cyan-100">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
+                                        <p class="text-gray-600 mt-2">Loading tide data...</p>
+                                    </div>
+                                ` : tideData && tideData.length > 0 ? `
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         ${tideData.slice(0, 4).map(tide => {
                                             const temp = getTempAtTime(tide.t);
@@ -214,87 +208,82 @@
                                     </div>
                                 ` : `
                                     <div class="bg-white p-4 rounded-lg text-center border border-cyan-100">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
-                                        <p class="text-gray-600 mt-2">Loading tide data...</p>
-                                    </div>
-                                `}
-                            </div>
-
-                            <!-- Beach Selection -->
-                            <div class="p-6 bg-gray-50 border-b">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    ${beaches.map((b, idx) => `
-                                        <button onclick="selectBeach(${idx})" class="p-4 rounded-lg border-2 transition-all ${
-                                            selectedBeachIndex === idx
-                                                ? 'border-blue-600 bg-blue-50 shadow-md'
-                                                : 'border-gray-200 bg-white hover:border-blue-300'
-                                        }">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <svg class="w-5 h-5 ${selectedBeachIndex === idx ? 'text-blue-600' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                <h3 class="font-semibold text-gray-900">${b.name}</h3>
-                                            </div>
-                                            <p class="text-sm text-gray-600">${b.location}</p>
-                                        </button>
-                                    `).join('')}
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="p-6">
-                                ${!weather ? `
-                                    <div class="flex items-center justify-center py-12">
-                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                                    </div>
-                                ` : `
-                                    <div class="space-y-6">
-                                        <!-- Weather -->
-                                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-100">
-                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Current Weather</h2>
-                                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                                <div class="bg-white p-4 rounded-lg">
-                                                    <p class="text-sm text-gray-600 mb-1">Air Temp</p>
-                                                    <p class="text-2xl font-bold text-gray-900">${Math.round(weather.temperature_2m)}°F</p>
-                                                </div>
-                                                <div class="bg-white p-4 rounded-lg">
-                                                    <p class="text-sm text-gray-600 mb-1">Water Temp</p>
-                                                    <p class="text-2xl font-bold text-cyan-600">${waterTemp ? waterTemp + '°F' : '—'}</p>
-                                                </div>
-                                                <div class="bg-white p-4 rounded-lg">
-                                                    <p class="text-sm text-gray-600 mb-1">Conditions</p>
-                                                    <p class="text-lg font-semibold text-gray-900">${getWeatherDescription(weather.weather_code)}</p>
-                                                </div>
-                                                <div class="bg-white p-4 rounded-lg">
-                                                    <p class="text-sm text-gray-600 mb-1">Wind</p>
-                                                    <p class="text-lg font-semibold text-gray-900">${Math.round(weather.wind_speed_10m)} mph ${getWindDirection(weather.wind_direction_10m)}</p>
-                                                </div>
-                                                <div class="bg-white p-4 rounded-lg">
-                                                    <p class="text-sm text-gray-600 mb-1">Humidity</p>
-                                                    <p class="text-2xl font-bold text-gray-900">${weather.relative_humidity_2m}%</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Webcams -->
-                                        <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-100">
-                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Live Webcams</h2>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                ${beach.webcams.map(cam => `
-                                                    <a href="${cam.url}" target="_blank" rel="noopener noreferrer" 
-                                                       class="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
-                                                        ${cam.name} →
-                                                    </a>
-                                                `).join('')}
-                                            </div>
-                                        </div>
+                                        <p class="text-gray-600">Tide data unavailable</p>
                                     </div>
                                 `}
                             </div>
                         </div>
-                        <p class="text-center text-white text-sm mt-4">
-                            Weather data from Open-Meteo | Tide data from NOAA
+
+                        <!-- Beach Conditions -->
+                        <div class="space-y-6 mb-6">
+                            ${beaches.map((beach, idx) => {
+                                const weather = weatherData[idx];
+                                const waterTemp = waterTempData[idx];
+                                return `
+                                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-4 text-white">
+                                            <h2 class="text-2xl font-bold">${beach.name}</h2>
+                                            <p class="text-blue-100">${beach.location}</p>
+                                        </div>
+                                        <div class="p-6">
+                                            ${loading || !weather ? `
+                                                <div class="flex items-center justify-center py-8">
+                                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                                </div>
+                                            ` : `
+                                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                                        <p class="text-sm text-gray-600 mb-1">Air Temp</p>
+                                                        <p class="text-2xl font-bold text-gray-900">${Math.round(weather.temperature_2m)}°F</p>
+                                                    </div>
+                                                    <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-100">
+                                                        <p class="text-sm text-gray-600 mb-1">Water Temp</p>
+                                                        <p class="text-2xl font-bold text-cyan-600">${waterTemp ? waterTemp + '°F' : '—'}</p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                        <p class="text-sm text-gray-600 mb-1">Conditions</p>
+                                                        <p class="text-lg font-semibold text-gray-900">${getWeatherDescription(weather.weather_code)}</p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                        <p class="text-sm text-gray-600 mb-1">Wind</p>
+                                                        <p class="text-lg font-semibold text-gray-900">${Math.round(weather.wind_speed_10m)} mph ${getWindDirection(weather.wind_direction_10m)}</p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                        <p class="text-sm text-gray-600 mb-1">Humidity</p>
+                                                        <p class="text-2xl font-bold text-gray-900">${weather.relative_humidity_2m}%</p>
+                                                    </div>
+                                                </div>
+                                            `}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <!-- Webcams -->
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
+                                <h2 class="text-2xl font-bold">Live Webcams</h2>
+                            </div>
+                            <div class="p-6 space-y-6">
+                                ${beaches.map((beach, idx) => `
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-3">${beach.name}</h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            ${beach.webcams.map(cam => `
+                                                <a href="${cam.url}" target="_blank" rel="noopener noreferrer" 
+                                                   class="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                                                    ${cam.name} →
+                                                </a>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('<hr class="my-6 border-gray-200">')}
+                            </div>
+                        </div>
+
+                        <p class="text-center text-white text-sm mt-6">
+                            Weather data from Open-Meteo | Tide data from NOAA | Water temp from NOAA buoys
                         </p>
                     </div>
                 </div>
@@ -302,8 +291,6 @@
 
             document.getElementById('app').innerHTML = html;
         }
-
-        window.selectBeach = selectBeach;
 
         render();
         fetchData();
