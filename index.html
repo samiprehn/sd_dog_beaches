@@ -18,7 +18,7 @@
                 lon: -117.2517,
                 tideStation: "9410170",
                 webcams: [
-                    { name: "OB Beach Cam", url: "https://oceanbeachsandiego.com/media/ob-beach-cam", embed: false }
+                    { name: "OB Beach Cam", url: "https://oceanbeachsandiego.com/media/ob-beach-cam" }
                 ]
             },
             {
@@ -28,10 +28,10 @@
                 lon: -117.2654,
                 tideStation: "9410170",
                 webcams: [
-                    { name: "Del Mar Beach North", url: "https://hdontap.com/stream/199841/del-mar-beach-north-live-webcam/", embed: true, streamId: "199841" },
-                    { name: "Del Mar Beach Community Ultra HD Overlook", url: "https://hdontap.com/stream/101962/del-mar-beach-community-ultra-hd-overlook-live-webcvam/", embed: true, streamId: "101962" },
-                    { name: "17th St Del Mar Beach 4K Southwest", url: "https://hdontap.com/stream/122912/17th-st-del-mar-beach-4k-southwest-live-webcam/", embed: true, streamId: "122912" },
-                    { name: "Del Mar Beach South Roaming", url: "https://hdontap.com/stream/399483/del-mar-beach-south-roaming-live-webcam/", embed: true, streamId: "399483" }
+                    { name: "Del Mar Beach North", url: "https://hdontap.com/stream/199841/del-mar-beach-north-live-webcam/" },
+                    { name: "Del Mar Beach Community Ultra HD Overlook", url: "https://hdontap.com/stream/101962/del-mar-beach-community-ultra-hd-overlook-live-webcvam/" },
+                    { name: "17th St Del Mar Beach 4K Southwest", url: "https://hdontap.com/stream/122912/17th-st-del-mar-beach-4k-southwest-live-webcam/" },
+                    { name: "Del Mar Beach South Roaming", url: "https://hdontap.com/stream/399483/del-mar-beach-south-roaming-live-webcam/" }
                 ]
             },
             {
@@ -41,9 +41,9 @@
                 lon: -117.1831,
                 tideStation: "9410170",
                 webcams: [
-                    { name: "Hotel Del Coronado North Roaming", url: "https://hdontap.com/stream/327869/hotel-del-coronado-north-roaming-live-cam/", embed: true, streamId: "327869" },
-                    { name: "Hotel Del Coronado 4K Roaming", url: "https://hdontap.com/stream/964952/hotel-del-coronado-4k-roaming-live-cam/", embed: true, streamId: "964952" },
-                    { name: "Del Mar Beach South Roaming", url: "https://hdontap.com/stream/399483/del-mar-beach-south-roaming-live-webcam/", embed: true, streamId: "399483" }
+                    { name: "Hotel Del Coronado North Roaming", url: "https://hdontap.com/stream/327869/hotel-del-coronado-north-roaming-live-cam/" },
+                    { name: "Hotel Del Coronado 4K Roaming", url: "https://hdontap.com/stream/964952/hotel-del-coronado-4k-roaming-live-cam/" },
+                    { name: "Del Mar Beach South Roaming", url: "https://hdontap.com/stream/399483/del-mar-beach-south-roaming-live-webcam/" }
                 ]
             }
         ];
@@ -51,6 +51,7 @@
         let selectedBeachIndex = 0;
         let weatherData = null;
         let tideData = null;
+        let hourlyWeather = null;
 
         const getWeatherDescription = (code) => {
             const weatherCodes = {
@@ -65,6 +66,25 @@
         const getWindDirection = (degrees) => {
             const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
             return directions[Math.round(degrees / 45) % 8];
+        };
+
+        const getTempAtTime = (timeStr) => {
+            if (!hourlyWeather) return null;
+            
+            const tideTime = new Date(timeStr);
+            const tideHour = tideTime.getHours();
+            
+            // Find the closest hour in the hourly forecast
+            const hourIndex = hourlyWeather.time.findIndex(time => {
+                const forecastTime = new Date(time);
+                return forecastTime.getHours() === tideHour && 
+                       forecastTime.getDate() === tideTime.getDate();
+            });
+            
+            if (hourIndex !== -1) {
+                return Math.round(hourlyWeather.temperature_2m[hourIndex]);
+            }
+            return null;
         };
 
         async function fetchData() {
@@ -99,6 +119,7 @@
             selectedBeachIndex = index;
             weatherData = null;
             tideData = null;
+            hourlyWeather = null;
             render();
             fetchData();
         }
@@ -180,15 +201,19 @@
                                             <h2 class="text-xl font-bold text-gray-900 mb-4">Today's Tides (San Diego Bay)</h2>
                                             ${tideData && tideData.length > 0 ? `
                                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                                    ${tideData.slice(0, 4).map(tide => `
-                                                        <div class="bg-white p-4 rounded-lg">
-                                                            <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
-                                                                ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
-                                                            </p>
-                                                            <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
-                                                            <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
-                                                        </div>
-                                                    `).join('')}
+                                                    ${tideData.slice(0, 4).map(tide => {
+                                                        const temp = getTempAtTime(tide.t);
+                                                        return `
+                                                            <div class="bg-white p-4 rounded-lg">
+                                                                <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
+                                                                    ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
+                                                                </p>
+                                                                <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+                                                                <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
+                                                                ${temp ? `<p class="text-xs text-gray-500 mt-1">${temp}°F</p>` : ''}
+                                                            </div>
+                                                        `;
+                                                    }).join('')}
                                                 </div>
                                             ` : `
                                                 <div class="bg-white p-4 rounded-lg text-center">
@@ -200,32 +225,13 @@
                                         <!-- Webcams -->
                                         <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-100">
                                             <h2 class="text-xl font-bold text-gray-900 mb-4">Live Webcams</h2>
-                                            <div class="space-y-4">
-                                                ${beach.webcams.map(cam => {
-                                                    if (cam.embed) {
-                                                        return `
-                                                            <div>
-                                                                <h3 class="text-sm font-semibold text-gray-700 mb-2">${cam.name}</h3>
-                                                                <div class="relative" style="padding-bottom: 56.25%; height: 0;">
-                                                                    <iframe 
-                                                                        src="https://portal.hdontap.com/s/embed?stream=${cam.streamId}" 
-                                                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                                                                        frameborder="0" 
-                                                                        allowfullscreen
-                                                                        allow="autoplay; fullscreen">
-                                                                    </iframe>
-                                                                </div>
-                                                            </div>
-                                                        `;
-                                                    } else {
-                                                        return `
-                                                            <a href="${cam.url}" target="_blank" rel="noopener noreferrer" 
-                                                               class="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
-                                                                ${cam.name} →
-                                                            </a>
-                                                        `;
-                                                    }
-                                                }).join('')}
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                ${beach.webcams.map(cam => `
+                                                    <a href="${cam.url}" target="_blank" rel="noopener noreferrer" 
+                                                       class="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                                                        ${cam.name} →
+                                                    </a>
+                                                `).join('')}
                                             </div>
                                         </div>
                                     </div>
