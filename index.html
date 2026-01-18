@@ -100,7 +100,7 @@
                 const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0].replace(/-/g, '');
                 
                 const tideRes = await fetch(
-                    `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?begin_date=${today}&end_date=${tomorrow}&station=9410170&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&interval=hilo&format=json`
+                    `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?begin_date=${today}&end_date=${tomorrow}&station=9410230&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&interval=hilo&format=json`
                 );
                 
                 if (tideRes.ok) {
@@ -157,7 +157,7 @@
                                     <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
                                     </svg>
-                                    Today's Tides (San Diego Bay)
+                                    Today's Tides (San Diego)
                                 </h2>
                                 ${loading ? `
                                     <div class="bg-white p-8 rounded-lg text-center border border-cyan-100">
