@@ -157,47 +157,47 @@
 
         function render() {
             const html = `
-                <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-4">
+                <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-2">
                     <div class="max-w-6xl mx-auto">
                         <!-- Header -->
-                        <div class="text-center mb-6">
-                            <h1 class="text-5xl font-bold text-white drop-shadow-lg">San Diego Dog Beach Info</h1>
+                        <div class="text-center mb-3">
+                            <h1 class="text-4xl font-bold text-white drop-shadow-lg">San Diego Dog Beach Info</h1>
                         </div>
 
                         <!-- Timing -->
-                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6">
-                            <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-6 text-white">
-                                <h2 class="text-2xl font-bold">Timing</h2>
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3">
+                            <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-3 text-white">
+                                <h2 class="text-xl font-bold">Timing</h2>
                             </div>
-                            <div class="p-6 bg-gradient-to-br from-cyan-50 to-blue-50">
+                            <div class="p-3 bg-gradient-to-br from-cyan-50 to-blue-50">
                                 ${loading ? `
-                                    <div class="bg-white p-8 rounded-lg text-center border border-cyan-100">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
-                                        <p class="text-gray-600 mt-2">Loading data...</p>
+                                    <div class="bg-white p-4 rounded-lg text-center border border-cyan-100">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600 mx-auto"></div>
+                                        <p class="text-gray-600 mt-2 text-sm">Loading data...</p>
                                     </div>
                                 ` : `
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                                         ${sunData ? `
-                                            <div class="bg-white p-4 rounded-lg border border-amber-200">
-                                                <p class="text-sm font-semibold mb-1 text-amber-600">Sunrise</p>
-                                                <p class="text-lg font-bold text-gray-900">${new Date(sunData.sunrise).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
+                                            <div class="bg-white p-2 rounded-lg border border-amber-200">
+                                                <p class="text-xs font-semibold mb-1 text-amber-600">Sunrise</p>
+                                                <p class="text-base font-bold text-gray-900">${new Date(sunData.sunrise).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
                                             </div>
-                                            <div class="bg-white p-4 rounded-lg border border-orange-200">
-                                                <p class="text-sm font-semibold mb-1 text-orange-600">Sunset</p>
-                                                <p class="text-lg font-bold text-gray-900">${new Date(sunData.sunset).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
+                                            <div class="bg-white p-2 rounded-lg border border-orange-200">
+                                                <p class="text-xs font-semibold mb-1 text-orange-600">Sunset</p>
+                                                <p class="text-base font-bold text-gray-900">${new Date(sunData.sunset).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
                                             </div>
                                         ` : ''}
                                         ${tideData && tideData.length > 0 ? tideData.slice(0, 4).map(tide => `
-                                            <div class="bg-white p-4 rounded-lg border border-cyan-100">
-                                                <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
+                                            <div class="bg-white p-2 rounded-lg border border-cyan-100">
+                                                <p class="text-xs font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
                                                     ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
                                                 </p>
-                                                <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
-                                                <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
+                                                <p class="text-base font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+                                                <p class="text-xs text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
                                             </div>
                                         `).join('') : `
-                                            <div class="bg-white p-4 rounded-lg text-center border border-cyan-100 col-span-4">
-                                                <p class="text-gray-600">Tide data unavailable</p>
+                                            <div class="bg-white p-2 rounded-lg text-center border border-cyan-100 col-span-4">
+                                                <p class="text-gray-600 text-sm">Tide data unavailable</p>
                                             </div>
                                         `}
                                     </div>
@@ -207,26 +207,26 @@
                         </div>
 
                         <!-- Beach Conditions -->
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-                            <div class="bg-gradient-to-r from-amber-500 to-yellow-600 p-6 text-white">
-                                <h2 class="text-2xl font-bold">Beach Conditions</h2>
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3">
+                            <div class="bg-gradient-to-r from-amber-500 to-yellow-600 p-3 text-white">
+                                <h2 class="text-xl font-bold">Beach Conditions</h2>
                             </div>
-                            <div class="p-6">
+                            <div class="p-3">
                                 ${loading || !weatherData[0] ? `
-                                    <div class="flex items-center justify-center py-8">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                    <div class="flex items-center justify-center py-4">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                     </div>
                                 ` : `
                                     <div class="overflow-x-auto">
                                         <table class="w-full">
                                             <thead>
-                                                <tr class="border-b-2 border-gray-200">
-                                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Beach</th>
-                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Current</th>
-                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">High</th>
-                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Conditions</th>
-                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Wind</th>
-                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Humidity</th>
+                                                <tr class="border-b border-gray-200">
+                                                    <th class="text-left py-2 px-2 font-semibold text-gray-700 text-sm">Beach</th>
+                                                    <th class="text-center py-2 px-2 font-semibold text-gray-700 text-sm">Current</th>
+                                                    <th class="text-center py-2 px-2 font-semibold text-gray-700 text-sm">High</th>
+                                                    <th class="text-center py-2 px-2 font-semibold text-gray-700 text-sm">Conditions</th>
+                                                    <th class="text-center py-2 px-2 font-semibold text-gray-700 text-sm">Wind</th>
+                                                    <th class="text-center py-2 px-2 font-semibold text-gray-700 text-sm">Humidity</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -235,24 +235,24 @@
                                                     if (!weather) return '';
                                                     return `
                                                         <tr class="border-b border-gray-100 hover:bg-amber-50 transition-colors">
-                                                            <td class="py-4 px-4">
-                                                                <div class="font-bold text-gray-900">${beach.name}</div>
-                                                                <div class="text-sm text-gray-600">${beach.location}</div>
+                                                            <td class="py-2 px-2">
+                                                                <div class="font-bold text-gray-900 text-sm">${beach.name}</div>
+                                                                <div class="text-xs text-gray-600">${beach.location}</div>
                                                             </td>
-                                                            <td class="text-center py-4 px-4">
-                                                                <div class="text-2xl font-bold text-blue-600">${Math.round(weather.current.temperature_2m)}°F</div>
+                                                            <td class="text-center py-2 px-2">
+                                                                <div class="text-lg font-bold text-blue-600">${Math.round(weather.current.temperature_2m)}°F</div>
                                                             </td>
-                                                            <td class="text-center py-4 px-4">
-                                                                <div class="text-2xl font-bold text-orange-600">${Math.round(weather.dailyMax)}°F</div>
+                                                            <td class="text-center py-2 px-2">
+                                                                <div class="text-lg font-bold text-orange-600">${Math.round(weather.dailyMax)}°F</div>
                                                             </td>
-                                                            <td class="text-center py-4 px-4">
-                                                                <div class="font-semibold text-gray-900">${getWeatherDescription(weather.current.weather_code)}</div>
+                                                            <td class="text-center py-2 px-2">
+                                                                <div class="font-semibold text-gray-900 text-sm">${getWeatherDescription(weather.current.weather_code)}</div>
                                                             </td>
-                                                            <td class="text-center py-4 px-4">
-                                                                <div class="font-semibold text-gray-900">${Math.round(weather.current.wind_speed_10m)} mph ${getWindDirection(weather.current.wind_direction_10m)}</div>
+                                                            <td class="text-center py-2 px-2">
+                                                                <div class="font-semibold text-gray-900 text-sm">${Math.round(weather.current.wind_speed_10m)} mph ${getWindDirection(weather.current.wind_direction_10m)}</div>
                                                             </td>
-                                                            <td class="text-center py-4 px-4">
-                                                                <div class="text-xl font-bold text-gray-900">${weather.current.relative_humidity_2m}%</div>
+                                                            <td class="text-center py-2 px-2">
+                                                                <div class="text-base font-bold text-gray-900">${weather.current.relative_humidity_2m}%</div>
                                                             </td>
                                                         </tr>
                                                     `;
@@ -265,23 +265,23 @@
                         </div>
 
                         <!-- Ocean Temperature -->
-                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-                            <div class="bg-gradient-to-r from-cyan-600 to-teal-600 p-6 text-white">
-                                <h2 class="text-2xl font-bold">Ocean Temperature</h2>
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3">
+                            <div class="bg-gradient-to-r from-cyan-600 to-teal-600 p-3 text-white">
+                                <h2 class="text-xl font-bold">Ocean Temperature</h2>
                             </div>
-                            <div class="p-6">
+                            <div class="p-3">
                                 ${loading ? `
-                                    <div class="flex items-center justify-center py-8">
-                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
+                                    <div class="flex items-center justify-center py-4">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
                                     </div>
                                 ` : `
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                                         ${waterTempStations.map((station, idx) => {
                                             const temp = waterTempData[idx];
                                             return `
-                                                <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-100">
-                                                    <p class="text-sm text-gray-600 mb-1">${station.name}</p>
-                                                    <p class="text-3xl font-bold text-cyan-600">${temp ? temp + '°F' : '—'}</p>
+                                                <div class="bg-cyan-50 p-2 rounded-lg border border-cyan-100">
+                                                    <p class="text-xs text-gray-600 mb-1">${station.name}</p>
+                                                    <p class="text-xl font-bold text-cyan-600">${temp ? temp + '°F' : '—'}</p>
                                                 </div>
                                             `;
                                         }).join('')}
@@ -292,27 +292,27 @@
 
                         <!-- Webcams -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                            <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6 text-white">
-                                <h2 class="text-2xl font-bold">Live Webcams</h2>
+                            <div class="bg-gradient-to-r from-orange-600 to-red-600 p-3 text-white">
+                                <h2 class="text-xl font-bold">Live Webcams</h2>
                             </div>
-                            <div class="p-6 space-y-6">
+                            <div class="p-3 space-y-3">
                                 ${beaches.map((beach, idx) => `
                                     <div>
-                                        <h3 class="text-lg font-bold text-gray-900 mb-3">${beach.name}</h3>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <h3 class="text-base font-bold text-gray-900 mb-2">${beach.name}</h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                             ${beach.webcams.map(cam => `
                                                 <a href="${cam.url}" target="_blank" rel="noopener noreferrer" 
-                                                   class="block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                                                   class="block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg text-center transition-colors text-sm">
                                                     ${cam.name} →
                                                 </a>
                                             `).join('')}
                                         </div>
                                     </div>
-                                `).join('<hr class="my-6 border-gray-200">')}
+                                `).join('<hr class="my-3 border-gray-200">')}
                             </div>
                         </div>
 
-                        <p class="text-center text-white text-sm mt-6">
+                        <p class="text-center text-white text-xs mt-3">
                             Weather data from Open-Meteo | Tide and water temp data from NOAA
                         </p>
                     </div>
