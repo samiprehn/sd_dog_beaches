@@ -12,7 +12,7 @@
     <script type="module">
         const beaches = [
             {
-                name: "Ocean Beach Dog Beach",
+                name: "OB Dog Beach",
                 location: "San Diego",
                 lat: 32.7503,
                 lon: -117.2517,
@@ -161,7 +161,7 @@
                     <div class="max-w-6xl mx-auto">
                         <!-- Header -->
                         <div class="text-center mb-3">
-                            <h1 class="text-4xl font-bold text-white drop-shadow-lg">San Diego Dog Beach Info</h1>
+                            <h1 class="text-3xl font-bold text-white drop-shadow-lg">San Diego Dog Beach Info</h1>
                         </div>
 
                         <!-- Timing -->
@@ -237,7 +237,6 @@
                                                         <tr class="border-b border-gray-100 hover:bg-amber-50 transition-colors">
                                                             <td class="py-2 px-2">
                                                                 <div class="font-bold text-gray-900 text-sm">${beach.name}</div>
-                                                                <div class="text-xs text-gray-600">${beach.location}</div>
                                                             </td>
                                                             <td class="text-center py-2 px-2">
                                                                 <div class="text-lg font-bold text-blue-600">${Math.round(weather.current.temperature_2m)}°F</div>
@@ -293,7 +292,7 @@
                         <!-- Webcams -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                             <div class="bg-gradient-to-r from-orange-600 to-red-600 p-3 text-white">
-                                <h2 class="text-xl font-bold">Live Webcams</h2>
+                                <h2 class="text-xl font-bold">Webcams</h2>
                             </div>
                             <div class="p-3 space-y-3">
                                 ${beaches.map((beach, idx) => `
@@ -303,7 +302,7 @@
                                             ${beach.webcams.map(cam => `
                                                 <a href="${cam.url}" target="_blank" rel="noopener noreferrer" 
                                                    class="block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg text-center transition-colors text-sm">
-                                                    ${cam.name} →
+                                                    ${cam.name}
                                                 </a>
                                             `).join('')}
                                         </div>
