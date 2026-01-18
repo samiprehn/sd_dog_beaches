@@ -16,6 +16,7 @@
                 location: "San Diego",
                 lat: 32.7503,
                 lon: -117.2517,
+                waterTempBuoy: "46232", // Oceanside Offshore
                 webcams: [
                     { name: "OB Beach Cam", url: "https://oceanbeachsandiego.com/media/ob-beach-cam" }
                 ]
@@ -25,6 +26,7 @@
                 location: "Del Mar",
                 lat: 32.9595,
                 lon: -117.2654,
+                waterTempBuoy: "46266", // Del Mar Nearshore
                 webcams: [
                     { name: "Del Mar Beach North", url: "https://hdontap.com/stream/199841/del-mar-beach-north-live-webcam/" },
                     { name: "Del Mar Beach Community Ultra HD Overlook", url: "https://hdontap.com/stream/101962/del-mar-beach-community-ultra-hd-overlook-live-webcvam/" },
@@ -37,6 +39,7 @@
                 location: "Coronado",
                 lat: 32.6859,
                 lon: -117.1831,
+                waterTempBuoy: "9410170", // San Diego Bay
                 webcams: [
                     { name: "Hotel Del Coronado North Roaming", url: "https://hdontap.com/stream/327869/hotel-del-coronado-north-roaming-live-cam/" },
                     { name: "Hotel Del Coronado 4K Roaming", url: "https://hdontap.com/stream/964952/hotel-del-coronado-4k-roaming-live-cam/" },
@@ -47,6 +50,7 @@
 
         let selectedBeachIndex = 0;
         let weatherData = {};
+        let waterTempData = {};
         let tideData = null;
         let hourlyWeather = null;
 
@@ -65,7 +69,32 @@
             return directions[Math.round(degrees / 45) % 8];
         };
 
-        const getTempAtTime = (timeStr) => {
+        async function fetchWaterTemp(buoyId) {
+            try {
+                const res = await fetch(`https://www.ndbc.noaa.gov/data/realtime2/${buoyId}.txt`);
+                if (!res.ok) return null;
+                
+                const text = await res.text();
+                const lines = text.trim().split('\n');
+                if (lines.length < 3) return null;
+                
+                const dataLine = lines[2].trim().split(/\s+/);
+                const headerLine = lines[0].trim().split(/\s+/);
+                
+                // Find WTMP (water temperature) column
+                const wtmpIndex = headerLine.indexOf('WTMP');
+                if (wtmpIndex === -1) return null;
+                
+                const tempC = parseFloat(dataLine[wtmpIndex]);
+                if (isNaN(tempC) || tempC === 99 || tempC === 999) return null;
+                
+                // Convert Celsius to Fahrenheit
+                return Math.round(tempC * 9/5 + 32);
+            } catch (err) {
+                console.error(`Error fetching water temp for buoy ${buoyId}:`, err);
+                return null;
+            }
+        }
             if (!hourlyWeather || !hourlyWeather.time || !hourlyWeather.temperature_2m) {
                 return null;
             }
@@ -121,6 +150,10 @@
                         const data = await res.json();
                         weatherData[i] = data.current;
                     }
+
+                    // Fetch water temperature
+                    const waterTemp = await fetchWaterTemp(beach.waterTempBuoy);
+                    waterTempData[i] = waterTemp;
                 }
 
                 render();
@@ -138,6 +171,7 @@
         function render() {
             const beach = beaches[selectedBeachIndex];
             const weather = weatherData[selectedBeachIndex];
+            const waterTemp = waterTempData[selectedBeachIndex];
 
             const html = `
                 <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-4">
@@ -219,10 +253,14 @@
                                         <!-- Weather -->
                                         <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-100">
                                             <h2 class="text-xl font-bold text-gray-900 mb-4">Current Weather</h2>
-                                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                                                 <div class="bg-white p-4 rounded-lg">
-                                                    <p class="text-sm text-gray-600 mb-1">Temperature</p>
+                                                    <p class="text-sm text-gray-600 mb-1">Air Temp</p>
                                                     <p class="text-2xl font-bold text-gray-900">${Math.round(weather.temperature_2m)}°F</p>
+                                                </div>
+                                                <div class="bg-white p-4 rounded-lg">
+                                                    <p class="text-sm text-gray-600 mb-1">Water Temp</p>
+                                                    <p class="text-2xl font-bold text-cyan-600">${waterTemp ? waterTemp + '°F' : '—'}</p>
                                                 </div>
                                                 <div class="bg-white p-4 rounded-lg">
                                                     <p class="text-sm text-gray-600 mb-1">Conditions</p>
