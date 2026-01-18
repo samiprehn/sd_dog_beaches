@@ -192,48 +192,62 @@
                         </div>
 
                         <!-- Beach Conditions -->
-                        <div class="space-y-6 mb-6">
-                            ${beaches.map((beach, idx) => {
-                                const weather = weatherData[idx];
-                                return `
-                                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-4 text-white">
-                                            <h2 class="text-2xl font-bold">${beach.name}</h2>
-                                            <p class="text-blue-100">${beach.location}</p>
-                                        </div>
-                                        <div class="p-6">
-                                            ${loading || !weather ? `
-                                                <div class="flex items-center justify-center py-8">
-                                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                                </div>
-                                            ` : `
-                                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                                                        <p class="text-sm text-gray-600 mb-1">Current</p>
-                                                        <p class="text-2xl font-bold text-gray-900">${Math.round(weather.current.temperature_2m)}°F</p>
-                                                    </div>
-                                                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-100">
-                                                        <p class="text-sm text-gray-600 mb-1">High Today</p>
-                                                        <p class="text-2xl font-bold text-orange-600">${Math.round(weather.dailyMax)}°F</p>
-                                                    </div>
-                                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                                        <p class="text-sm text-gray-600 mb-1">Conditions</p>
-                                                        <p class="text-lg font-semibold text-gray-900">${getWeatherDescription(weather.current.weather_code)}</p>
-                                                    </div>
-                                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                                        <p class="text-sm text-gray-600 mb-1">Wind</p>
-                                                        <p class="text-lg font-semibold text-gray-900">${Math.round(weather.current.wind_speed_10m)} mph ${getWindDirection(weather.current.wind_direction_10m)}</p>
-                                                    </div>
-                                                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                                        <p class="text-sm text-gray-600 mb-1">Humidity</p>
-                                                        <p class="text-2xl font-bold text-gray-900">${weather.current.relative_humidity_2m}%</p>
-                                                    </div>
-                                                </div>
-                                            `}
-                                        </div>
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-6 text-white">
+                                <h2 class="text-2xl font-bold">Beach Conditions</h2>
+                                <p class="text-blue-100">Current weather at dog beaches</p>
+                            </div>
+                            <div class="p-6">
+                                ${loading || !weatherData[0] ? `
+                                    <div class="flex items-center justify-center py-8">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                                     </div>
-                                `;
-                            }).join('')}
+                                ` : `
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full">
+                                            <thead>
+                                                <tr class="border-b-2 border-gray-200">
+                                                    <th class="text-left py-3 px-4 font-semibold text-gray-700">Beach</th>
+                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Current</th>
+                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">High</th>
+                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Conditions</th>
+                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Wind</th>
+                                                    <th class="text-center py-3 px-4 font-semibold text-gray-700">Humidity</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${beaches.map((beach, idx) => {
+                                                    const weather = weatherData[idx];
+                                                    if (!weather) return '';
+                                                    return `
+                                                        <tr class="border-b border-gray-100 hover:bg-blue-50 transition-colors">
+                                                            <td class="py-4 px-4">
+                                                                <div class="font-bold text-gray-900">${beach.name}</div>
+                                                                <div class="text-sm text-gray-600">${beach.location}</div>
+                                                            </td>
+                                                            <td class="text-center py-4 px-4">
+                                                                <div class="text-2xl font-bold text-blue-600">${Math.round(weather.current.temperature_2m)}°F</div>
+                                                            </td>
+                                                            <td class="text-center py-4 px-4">
+                                                                <div class="text-2xl font-bold text-orange-600">${Math.round(weather.dailyMax)}°F</div>
+                                                            </td>
+                                                            <td class="text-center py-4 px-4">
+                                                                <div class="font-semibold text-gray-900">${getWeatherDescription(weather.current.weather_code)}</div>
+                                                            </td>
+                                                            <td class="text-center py-4 px-4">
+                                                                <div class="font-semibold text-gray-900">${Math.round(weather.current.wind_speed_10m)} mph ${getWindDirection(weather.current.wind_direction_10m)}</div>
+                                                            </td>
+                                                            <td class="text-center py-4 px-4">
+                                                                <div class="text-xl font-bold text-gray-900">${weather.current.relative_humidity_2m}%</div>
+                                                            </td>
+                                                        </tr>
+                                                    `;
+                                                }).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                `}
+                            </div>
                         </div>
 
                         <!-- Ocean Temperature -->
