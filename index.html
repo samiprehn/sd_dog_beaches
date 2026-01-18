@@ -16,7 +16,6 @@
                 location: "San Diego",
                 lat: 32.7503,
                 lon: -117.2517,
-                waterTempBuoy: "46232",
                 webcams: [
                     { name: "OB Beach Cam", url: "https://oceanbeachsandiego.com/media/ob-beach-cam" }
                 ]
@@ -26,7 +25,6 @@
                 location: "Del Mar",
                 lat: 32.9595,
                 lon: -117.2654,
-                waterTempBuoy: "46266",
                 webcams: [
                     { name: "Del Mar Beach North", url: "https://hdontap.com/stream/199841/del-mar-beach-north-live-webcam/" },
                     { name: "Del Mar Beach Community Ultra HD Overlook", url: "https://hdontap.com/stream/101962/del-mar-beach-community-ultra-hd-overlook-live-webcvam/" },
@@ -39,13 +37,19 @@
                 location: "Coronado",
                 lat: 32.6859,
                 lon: -117.1831,
-                waterTempBuoy: "9410170",
                 webcams: [
                     { name: "Hotel Del Coronado North Roaming", url: "https://hdontap.com/stream/327869/hotel-del-coronado-north-roaming-live-cam/" },
                     { name: "Hotel Del Coronado 4K Roaming", url: "https://hdontap.com/stream/964952/hotel-del-coronado-4k-roaming-live-cam/" },
                     { name: "Del Mar Beach South Roaming", url: "https://hdontap.com/stream/399483/del-mar-beach-south-roaming-live-webcam/" }
                 ]
             }
+        ];
+
+        const waterTempStations = [
+            { name: "Del Mar", buoyId: "46266" },
+            { name: "La Jolla Shores", buoyId: "ljac1" },
+            { name: "San Diego Bay", buoyId: "sdbc1" },
+            { name: "Imperial Beach", buoyId: "46235" }
         ];
 
         let weatherData = {};
@@ -121,8 +125,11 @@
                             dailyMax: data.daily.temperature_2m_max[0]
                         };
                     }
+                }
 
-                    const waterTemp = await fetchWaterTemp(beach.waterTempBuoy);
+                for (let i = 0; i < waterTempStations.length; i++) {
+                    const station = waterTempStations[i];
+                    const waterTemp = await fetchWaterTemp(station.buoyId);
                     waterTempData[i] = waterTemp;
                 }
 
@@ -188,7 +195,6 @@
                         <div class="space-y-6 mb-6">
                             ${beaches.map((beach, idx) => {
                                 const weather = weatherData[idx];
-                                const waterTemp = waterTempData[idx];
                                 return `
                                     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                                         <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-4 text-white">
@@ -201,7 +207,7 @@
                                                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                                                 </div>
                                             ` : `
-                                                <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                                                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
                                                         <p class="text-sm text-gray-600 mb-1">Current</p>
                                                         <p class="text-2xl font-bold text-gray-900">${Math.round(weather.current.temperature_2m)}°F</p>
@@ -209,10 +215,6 @@
                                                     <div class="bg-orange-50 p-4 rounded-lg border border-orange-100">
                                                         <p class="text-sm text-gray-600 mb-1">High Today</p>
                                                         <p class="text-2xl font-bold text-orange-600">${Math.round(weather.dailyMax)}°F</p>
-                                                    </div>
-                                                    <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-100">
-                                                        <p class="text-sm text-gray-600 mb-1">Water Temp</p>
-                                                        <p class="text-2xl font-bold text-cyan-600">${waterTemp ? waterTemp + '°F' : '—'}</p>
                                                     </div>
                                                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                                         <p class="text-sm text-gray-600 mb-1">Conditions</p>
@@ -232,6 +234,33 @@
                                     </div>
                                 `;
                             }).join('')}
+                        </div>
+
+                        <!-- Ocean Temperature -->
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+                            <div class="bg-gradient-to-r from-cyan-600 to-teal-600 p-6 text-white">
+                                <h2 class="text-2xl font-bold">Ocean Temperature</h2>
+                                <p class="text-cyan-100">Real-time data from NOAA buoys</p>
+                            </div>
+                            <div class="p-6">
+                                ${loading ? `
+                                    <div class="flex items-center justify-center py-8">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600"></div>
+                                    </div>
+                                ` : `
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        ${waterTempStations.map((station, idx) => {
+                                            const temp = waterTempData[idx];
+                                            return `
+                                                <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-100">
+                                                    <p class="text-sm text-gray-600 mb-1">${station.name}</p>
+                                                    <p class="text-3xl font-bold text-cyan-600">${temp ? temp + '°F' : '—'}</p>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                `}
+                            </div>
                         </div>
 
                         <!-- Webcams -->
