@@ -3,10 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SD Dog Beach Conditions</title>
+    <title>San Diego Dog Beach Conditions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="module" src="app.jsx"></script>
+    <div id="app"></div>
+
+    <script type="module">
+        const beaches = [
+            {
+                name: "Ocean Beach Dog Beach",
+                location: "San Diego",
+                lat: 32.7503,
+                lon: -117.2517,
+                tideStation: "9410170",
+                webcam: "https://www.surfline.com/surf-report/ocean-beach-dog-beach/5842041f4e65fad6a7708815"
+            },
+            {
+                name: "Del Mar Dog Beach",
+                location: "Del Mar",
+                lat: 32.9595,
+                lon: -117.2654,
+                tideStation: "9410170",
+                webcam: "https://www.surfline.com/surf-report/del-mar/5842041f4e65fad6a7708990"
+            },
+            {
+                name: "Coronado Dog Beach",
+                location: "Coronado",
+                lat: 32.6859,
+                lon: -117.1831,
+                tideStation: "9410170",
+                webcam: "https://www.surfline.com/surf-report/coronado/5842041f4e65fad6a770881c"
+            }
+        ];
+
+        let selectedBeachIndex = 0;
+        let weatherData = null;
+        let tideData = null;
+
+        const getWeatherDescription = (code) => {
+            const weatherCodes = {
+                0: "Clear", 1: "Mainly Clear", 2: "Partly Cloudy", 3: "Overcast",
+                45: "Foggy", 48: "Foggy", 51: "Light Drizzle", 53: "Drizzle",
+                61: "Light Rain", 63: "Moderate Rain", 65: "Heavy Rain",
+                80: "Rain Showers", 95: "Thunderstorm"
+            };
+            return weatherCodes[code] || "Mixed";
+        };
+
+        const getWindDirection = (degrees) => {
+            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            return directions[Math.round(degrees / 45) % 8];
+        };
+
+        async function fetchData() {
+            const beach = beaches[selectedBeachIndex];
+            
+            try {
+                // Fetch weather
+                const weatherRes = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${beach.lat}&longitude=${beach.lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/Los_Angeles`
+                );
+                weatherData = await weatherRes.json();
+
+                // Fetch tides
+                const now = new Date();
+                const today = now.toISOString().split('T')[0].replace(/-/g, '');
+                const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0].replace(/-/g, '');
+                
+                const tideRes = await fetch(
+                    `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?begin_date=${today}&end_date=${tomorrow}&station=${beach.tideStation}&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&interval=hilo&format=json`
+                );
+                const tideJson = await tideRes.json();
+                tideData = tideJson.predictions || [];
+
+                render();
+            } catch (err) {
+                console.error('Error fetching data:', err);
+                render();
+            }
+        }
+
+        function selectBeach(index) {
+            selectedBeachIndex = index;
+            weatherData = null;
+            tideData = null;
+            render();
+            fetchData();
+        }
+
+        function render() {
+            const beach = beaches[selectedBeachIndex];
+            const weather = weatherData?.current;
+
+            const html = `
+                <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-4">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                            <!-- Header -->
+                            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 text-white">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                                    </svg>
+                                    <h1 class="text-3xl font-bold">San Diego Dog Beach Conditions</h1>
+                                </div>
+                                <p class="text-blue-100">Real-time weather, tides, and webcams</p>
+                            </div>
+
+                            <!-- Beach Selection -->
+                            <div class="p-6 bg-gray-50 border-b">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    ${beaches.map((b, idx) => `
+                                        <button onclick="selectBeach(${idx})" class="p-4 rounded-lg border-2 transition-all ${
+                                            selectedBeachIndex === idx
+                                                ? 'border-blue-600 bg-blue-50 shadow-md'
+                                                : 'border-gray-200 bg-white hover:border-blue-300'
+                                        }">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <svg class="w-5 h-5 ${selectedBeachIndex === idx ? 'text-blue-600' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                <h3 class="font-semibold text-gray-900">${b.name}</h3>
+                                            </div>
+                                            <p class="text-sm text-gray-600">${b.location}</p>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="p-6">
+                                ${!weather ? `
+                                    <div class="flex items-center justify-center py-12">
+                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                                    </div>
+                                ` : `
+                                    <div class="space-y-6">
+                                        <!-- Weather -->
+                                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-100">
+                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Current Weather</h2>
+                                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                <div class="bg-white p-4 rounded-lg">
+                                                    <p class="text-sm text-gray-600 mb-1">Temperature</p>
+                                                    <p class="text-2xl font-bold text-gray-900">${Math.round(weather.temperature_2m)}°F</p>
+                                                </div>
+                                                <div class="bg-white p-4 rounded-lg">
+                                                    <p class="text-sm text-gray-600 mb-1">Conditions</p>
+                                                    <p class="text-lg font-semibold text-gray-900">${getWeatherDescription(weather.weather_code)}</p>
+                                                </div>
+                                                <div class="bg-white p-4 rounded-lg">
+                                                    <p class="text-sm text-gray-600 mb-1">Wind</p>
+                                                    <p class="text-lg font-semibold text-gray-900">${Math.round(weather.wind_speed_10m)} mph ${getWindDirection(weather.wind_direction_10m)}</p>
+                                                </div>
+                                                <div class="bg-white p-4 rounded-lg">
+                                                    <p class="text-sm text-gray-600 mb-1">Humidity</p>
+                                                    <p class="text-2xl font-bold text-gray-900">${weather.relative_humidity_2m}%</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tides -->
+                                        <div class="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-100">
+                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Today's Tides (San Diego Bay)</h2>
+                                            ${tideData && tideData.length > 0 ? `
+                                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                    ${tideData.slice(0, 4).map(tide => `
+                                                        <div class="bg-white p-4 rounded-lg">
+                                                            <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
+                                                                ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
+                                                            </p>
+                                                            <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+                                                            <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            ` : `
+                                                <div class="bg-white p-4 rounded-lg text-center">
+                                                    <p class="text-gray-600">Tide data temporarily unavailable</p>
+                                                </div>
+                                            `}
+                                        </div>
+
+                                        <!-- Webcam -->
+                                        <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-100">
+                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Live Webcam</h2>
+                                            <a href="${beach.webcam}" target="_blank" rel="noopener noreferrer" 
+                                               class="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                                                View Live Conditions on Surfline →
+                                            </a>
+                                            <p class="text-sm text-gray-600 mt-2 text-center">Opens surf report and webcam in new tab</p>
+                                        </div>
+
+                                        <!-- Tips -->
+                                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                                            <p class="text-sm text-gray-700">
+                                                <strong>🐕 Tip:</strong> Best times are usually early morning or late afternoon to avoid crowds. Always bring fresh water for your pup and clean up after them!
+                                            </p>
+                                        </div>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                        <p class="text-center text-white text-sm mt-4">
+                            Weather data from Open-Meteo | Tide data from NOAA
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('app').innerHTML = html;
+        }
+
+        // Make selectBeach available globally
+        window.selectBeach = selectBeach;
+
+        // Initial load
+        render();
+        fetchData();
+    </script>
 </body>
 </html>
