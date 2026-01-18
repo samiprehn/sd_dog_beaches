@@ -176,44 +176,31 @@
                                         <p class="text-gray-600 mt-2">Loading data...</p>
                                     </div>
                                 ` : `
-                                    <!-- Sunrise/Sunset -->
-                                    ${sunData ? `
-                                        <div class="mb-6">
-                                            <h3 class="text-lg font-bold text-gray-900 mb-3">Sun</h3>
-                                            <div class="grid grid-cols-2 gap-3">
-                                                <div class="bg-white p-4 rounded-lg border border-amber-200">
-                                                    <p class="text-sm font-semibold mb-1 text-amber-600">Sunrise</p>
-                                                    <p class="text-lg font-bold text-gray-900">${new Date(sunData.sunrise).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
-                                                </div>
-                                                <div class="bg-white p-4 rounded-lg border border-orange-200">
-                                                    <p class="text-sm font-semibold mb-1 text-orange-600">Sunset</p>
-                                                    <p class="text-lg font-bold text-gray-900">${new Date(sunData.sunset).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
-                                                </div>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                                        ${sunData ? `
+                                            <div class="bg-white p-4 rounded-lg border border-amber-200">
+                                                <p class="text-sm font-semibold mb-1 text-amber-600">Sunrise</p>
+                                                <p class="text-lg font-bold text-gray-900">${new Date(sunData.sunrise).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
                                             </div>
-                                        </div>
-                                    ` : ''}
-                                    
-                                    <!-- Tides -->
-                                    ${tideData && tideData.length > 0 ? `
-                                        <div>
-                                            <h3 class="text-lg font-bold text-gray-900 mb-3">Tides</h3>
-                                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                                ${tideData.slice(0, 4).map(tide => `
-                                                    <div class="bg-white p-4 rounded-lg border border-cyan-100">
-                                                        <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
-                                                            ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
-                                                        </p>
-                                                        <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
-                                                        <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
-                                                    </div>
-                                                `).join('')}
+                                            <div class="bg-white p-4 rounded-lg border border-orange-200">
+                                                <p class="text-sm font-semibold mb-1 text-orange-600">Sunset</p>
+                                                <p class="text-lg font-bold text-gray-900">${new Date(sunData.sunset).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Los_Angeles' })}</p>
                                             </div>
-                                        </div>
-                                    ` : `
-                                        <div class="bg-white p-4 rounded-lg text-center border border-cyan-100">
-                                            <p class="text-gray-600">Tide data unavailable</p>
-                                        </div>
-                                    `}
+                                        ` : ''}
+                                        ${tideData && tideData.length > 0 ? tideData.slice(0, 4).map(tide => `
+                                            <div class="bg-white p-4 rounded-lg border border-cyan-100">
+                                                <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
+                                                    ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
+                                                </p>
+                                                <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+                                                <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
+                                            </div>
+                                        `).join('') : `
+                                            <div class="bg-white p-4 rounded-lg text-center border border-cyan-100 col-span-4">
+                                                <p class="text-gray-600">Tide data unavailable</p>
+                                            </div>
+                                        `}
+                                    </div>
                                 `}
                             </div>
                         </div>
