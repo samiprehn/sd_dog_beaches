@@ -17,8 +17,9 @@
                 lat: 32.7503,
                 lon: -117.2517,
                 tideStation: "9410170",
-                webcam: "https://oceanbeachsandiego.com/media/ob-beach-cam",
-                webcam2: "https://hdontap.com/index.php/video/stream/ocean-beach-san-diego"
+                webcams: [
+                    { name: "OB Beach Cam", url: "https://oceanbeachsandiego.com/media/ob-beach-cam", embed: false }
+                ]
             },
             {
                 name: "Del Mar Dog Beach",
@@ -26,8 +27,12 @@
                 lat: 32.9595,
                 lon: -117.2654,
                 tideStation: "9410170",
-                webcam: "https://www.delmar.ca.us/767/Web-Cameras",
-                webcam2: "https://hdontap.com/index.php/video/stream/del-mar-cam-1"
+                webcams: [
+                    { name: "Del Mar Beach North", url: "https://hdontap.com/stream/199841/del-mar-beach-north-live-webcam/", embed: true, streamId: "199841" },
+                    { name: "Del Mar Beach Community Ultra HD Overlook", url: "https://hdontap.com/stream/101962/del-mar-beach-community-ultra-hd-overlook-live-webcvam/", embed: true, streamId: "101962" },
+                    { name: "17th St Del Mar Beach 4K Southwest", url: "https://hdontap.com/stream/122912/17th-st-del-mar-beach-4k-southwest-live-webcam/", embed: true, streamId: "122912" },
+                    { name: "Del Mar Beach South Roaming", url: "https://hdontap.com/stream/399483/del-mar-beach-south-roaming-live-webcam/", embed: true, streamId: "399483" }
+                ]
             },
             {
                 name: "Coronado Dog Beach",
@@ -35,8 +40,11 @@
                 lat: 32.6859,
                 lon: -117.1831,
                 tideStation: "9410170",
-                webcam: "https://www.hoteldel.com/live-webcam/",
-                webcam2: "https://hdontap.com/index.php/video/stream/hotel-del-coronado-north-beach"
+                webcams: [
+                    { name: "Hotel Del Coronado North Roaming", url: "https://hdontap.com/stream/327869/hotel-del-coronado-north-roaming-live-cam/", embed: true, streamId: "327869" },
+                    { name: "Hotel Del Coronado 4K Roaming", url: "https://hdontap.com/stream/964952/hotel-del-coronado-4k-roaming-live-cam/", embed: true, streamId: "964952" },
+                    { name: "Del Mar Beach South Roaming", url: "https://hdontap.com/stream/399483/del-mar-beach-south-roaming-live-webcam/", embed: true, streamId: "399483" }
+                ]
             }
         ];
 
@@ -189,21 +197,36 @@
                                             `}
                                         </div>
 
-                                        <!-- Webcam -->
+                                        <!-- Webcams -->
                                         <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-100">
-                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Live Webcam</h2>
-                                            <a href="${beach.webcam}" target="_blank" rel="noopener noreferrer" 
-                                               class="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
-                                                View Live Conditions on Surfline →
-                                            </a>
-                                            <p class="text-sm text-gray-600 mt-2 text-center">Opens surf report and webcam in new tab</p>
-                                        </div>
-
-                                        <!-- Tips -->
-                                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                                            <p class="text-sm text-gray-700">
-                                                <strong>🐕 Tip:</strong> Best times are usually early morning or late afternoon to avoid crowds. Always bring fresh water for your pup and clean up after them!
-                                            </p>
+                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Live Webcams</h2>
+                                            <div class="space-y-4">
+                                                ${beach.webcams.map(cam => {
+                                                    if (cam.embed) {
+                                                        return `
+                                                            <div>
+                                                                <h3 class="text-sm font-semibold text-gray-700 mb-2">${cam.name}</h3>
+                                                                <div class="relative" style="padding-bottom: 56.25%; height: 0;">
+                                                                    <iframe 
+                                                                        src="https://portal.hdontap.com/s/embed?stream=${cam.streamId}" 
+                                                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                                                                        frameborder="0" 
+                                                                        allowfullscreen
+                                                                        allow="autoplay; fullscreen">
+                                                                    </iframe>
+                                                                </div>
+                                                            </div>
+                                                        `;
+                                                    } else {
+                                                        return `
+                                                            <a href="${cam.url}" target="_blank" rel="noopener noreferrer" 
+                                                               class="block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors">
+                                                                ${cam.name} →
+                                                            </a>
+                                                        `;
+                                                    }
+                                                }).join('')}
+                                            </div>
                                         </div>
                                     </div>
                                 `}
