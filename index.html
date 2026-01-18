@@ -69,21 +69,28 @@
         };
 
         const getTempAtTime = (timeStr) => {
-            if (!hourlyWeather) return null;
+            if (!hourlyWeather || !hourlyWeather.time || !hourlyWeather.temperature_2m) {
+                console.log('No hourly weather data available');
+                return null;
+            }
             
             const tideTime = new Date(timeStr);
             const tideHour = tideTime.getHours();
+            const tideDate = tideTime.getDate();
+            
+            console.log('Looking for temp at:', tideTime.toLocaleString(), 'Hour:', tideHour);
             
             // Find the closest hour in the hourly forecast
-            const hourIndex = hourlyWeather.time.findIndex(time => {
-                const forecastTime = new Date(time);
-                return forecastTime.getHours() === tideHour && 
-                       forecastTime.getDate() === tideTime.getDate();
-            });
-            
-            if (hourIndex !== -1) {
-                return Math.round(hourlyWeather.temperature_2m[hourIndex]);
+            for (let i = 0; i < hourlyWeather.time.length; i++) {
+                const forecastTime = new Date(hourlyWeather.time[i]);
+                if (forecastTime.getHours() === tideHour && forecastTime.getDate() === tideDate) {
+                    const temp = Math.round(hourlyWeather.temperature_2m[i]);
+                    console.log('Found temp:', temp, 'for', forecastTime.toLocaleString());
+                    return temp;
+                }
             }
+            
+            console.log('No matching hour found');
             return null;
         };
 
