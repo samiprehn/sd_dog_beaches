@@ -183,7 +183,7 @@
 
         function render() {
             const html = `
-                <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-3">
+                <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-2">
                     <div class="max-w-6xl mx-auto">
                         <!-- Header -->
                         <div class="text-center mb-2">
@@ -192,17 +192,17 @@
 
                         <!-- Timing -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
-                            <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-3 text-white">
+                            <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-2 text-white">
                                 <h2 class="text-xl font-bold">Timing 🌅 🌇 🌊 🕐</h2>
                             </div>
-                            <div class="p-3 bg-gradient-to-br from-cyan-50 to-blue-50">
+                            <div class="p-2 bg-gradient-to-br from-cyan-50 to-blue-50">
                                 ${loading ? `
-                                    <div class="bg-white p-3 rounded-lg text-center border border-cyan-100">
+                                    <div class="bg-white p-2 rounded-lg text-center border border-cyan-100">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600 mx-auto"></div>
                                         <p class="text-gray-600 mt-2 text-sm">Loading data...</p>
                                     </div>
                                 ` : `
-                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                                         ${sunData ? `
                                             <div class="bg-white p-2 rounded-lg border border-amber-200">
                                                 <p class="text-xs font-semibold mb-1 text-amber-600">Sunrise</p>
@@ -232,7 +232,7 @@
 
                         <!-- Beach Conditions -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2 mt-1">
-                            <div class="bg-gradient-to-r from-amber-500 to-yellow-600 p-3 text-white">
+                            <div class="bg-gradient-to-r from-amber-500 to-yellow-600 p-2 text-white">
                                 <h2 class="text-xl font-bold">Conditions ☀️ ⛅</h2>
                             </div>
                             <div class="p-2">
@@ -289,7 +289,7 @@
 
                         <!-- UV Index -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
-                            <div class="bg-gradient-to-r from-orange-600 to-yellow-500 p-3 text-white">
+                            <div class="bg-gradient-to-r from-orange-600 to-yellow-500 p-2 text-white">
                                 <h2 class="text-xl font-bold">UV Index ☀️</h2>
                             </div>
                             <div class="p-2">
@@ -298,7 +298,7 @@
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600"></div>
                                     </div>
                                 ` : uvData ? `
-                                    <div class="grid grid-cols-4 gap-1">
+                                    <div class="grid grid-cols-4 gap-2">
                                         <div class="bg-yellow-50 p-2 rounded-lg border border-yellow-200">
                                             <p class="text-xs text-gray-600 mb-1">10 AM</p>
                                             <p class="text-xl font-bold text-orange-600">${uvData.uv10am !== null ? uvData.uv10am : '—'}</p>
@@ -326,7 +326,7 @@
 
                         <!-- Ocean Temperature -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
-                            <div class="bg-gradient-to-r from-cyan-600 to-teal-600 p-3 text-white">
+                            <div class="bg-gradient-to-r from-cyan-600 to-teal-600 p-2 text-white">
                                 <h2 class="text-xl font-bold">Ocean Temperature 🌡️</h2>
                             </div>
                             <div class="p-2">
@@ -335,7 +335,7 @@
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-600"></div>
                                     </div>
                                 ` : `
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-1">
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                                         ${waterTempStations.map((station, idx) => {
                                             const temp = waterTempData[idx];
                                             return `
@@ -352,7 +352,7 @@
 
                         <!-- Webcams -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                            <div class="bg-gradient-to-r from-orange-600 to-red-600 p-3 text-white">
+                            <div class="bg-gradient-to-r from-orange-600 to-red-600 p-2 text-white">
                                 <h2 class="text-xl font-bold">Webcams 📹</h2>
                             </div>
                             <div class="p-2 space-y-3">
