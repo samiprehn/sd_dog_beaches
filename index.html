@@ -16,7 +16,6 @@
                 location: "San Diego",
                 lat: 32.7503,
                 lon: -117.2517,
-                tideStation: "9410170",
                 webcams: [
                     { name: "OB Beach Cam", url: "https://oceanbeachsandiego.com/media/ob-beach-cam" }
                 ]
@@ -26,7 +25,6 @@
                 location: "Del Mar",
                 lat: 32.9595,
                 lon: -117.2654,
-                tideStation: "9410170",
                 webcams: [
                     { name: "Del Mar Beach North", url: "https://hdontap.com/stream/199841/del-mar-beach-north-live-webcam/" },
                     { name: "Del Mar Beach Community Ultra HD Overlook", url: "https://hdontap.com/stream/101962/del-mar-beach-community-ultra-hd-overlook-live-webcvam/" },
@@ -39,7 +37,6 @@
                 location: "Coronado",
                 lat: 32.6859,
                 lon: -117.1831,
-                tideStation: "9410170",
                 webcams: [
                     { name: "Hotel Del Coronado North Roaming", url: "https://hdontap.com/stream/327869/hotel-del-coronado-north-roaming-live-cam/" },
                     { name: "Hotel Del Coronado 4K Roaming", url: "https://hdontap.com/stream/964952/hotel-del-coronado-4k-roaming-live-cam/" },
@@ -49,7 +46,7 @@
         ];
 
         let selectedBeachIndex = 0;
-        let weatherData = null;
+        let weatherData = {};
         let tideData = null;
         let hourlyWeather = null;
 
@@ -70,7 +67,6 @@
 
         const getTempAtTime = (timeStr) => {
             if (!hourlyWeather || !hourlyWeather.time || !hourlyWeather.temperature_2m) {
-                console.log('No hourly weather data available');
                 return null;
             }
             
@@ -78,42 +74,54 @@
             const tideHour = tideTime.getHours();
             const tideDate = tideTime.getDate();
             
-            console.log('Looking for temp at:', tideTime.toLocaleString(), 'Hour:', tideHour);
-            
-            // Find the closest hour in the hourly forecast
             for (let i = 0; i < hourlyWeather.time.length; i++) {
                 const forecastTime = new Date(hourlyWeather.time[i]);
                 if (forecastTime.getHours() === tideHour && forecastTime.getDate() === tideDate) {
-                    const temp = Math.round(hourlyWeather.temperature_2m[i]);
-                    console.log('Found temp:', temp, 'for', forecastTime.toLocaleString());
-                    return temp;
+                    return Math.round(hourlyWeather.temperature_2m[i]);
                 }
             }
             
-            console.log('No matching hour found');
             return null;
         };
 
         async function fetchData() {
-            const beach = beaches[selectedBeachIndex];
-            
             try {
-                // Fetch weather
-                const weatherRes = await fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${beach.lat}&longitude=${beach.lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/Los_Angeles`
-                );
-                weatherData = await weatherRes.json();
-
-                // Fetch tides
+                // Fetch tide data once (same for all beaches)
                 const now = new Date();
                 const today = now.toISOString().split('T')[0].replace(/-/g, '');
                 const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0].replace(/-/g, '');
                 
                 const tideRes = await fetch(
-                    `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?begin_date=${today}&end_date=${tomorrow}&station=${beach.tideStation}&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&interval=hilo&format=json`
+                    `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?begin_date=${today}&end_date=${tomorrow}&station=9410170&product=predictions&datum=MLLW&time_zone=lst_ldt&units=english&interval=hilo&format=json`
                 );
-                const tideJson = await tideRes.json();
-                tideData = tideJson.predictions || [];
+                
+                if (tideRes.ok) {
+                    const tideJson = await tideRes.json();
+                    tideData = tideJson.predictions || [];
+                }
+
+                // Fetch hourly weather for temperature at tide times
+                const weatherRes = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=32.7503&longitude=-117.2517&hourly=temperature_2m&temperature_unit=fahrenheit&timezone=America/Los_Angeles&forecast_days=2`
+                );
+                
+                if (weatherRes.ok) {
+                    const weatherJson = await weatherRes.json();
+                    hourlyWeather = weatherJson.hourly;
+                }
+
+                // Fetch weather for each beach
+                for (let i = 0; i < beaches.length; i++) {
+                    const beach = beaches[i];
+                    const res = await fetch(
+                        `https://api.open-meteo.com/v1/forecast?latitude=${beach.lat}&longitude=${beach.lon}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/Los_Angeles`
+                    );
+                    
+                    if (res.ok) {
+                        const data = await res.json();
+                        weatherData[i] = data.current;
+                    }
+                }
 
                 render();
             } catch (err) {
@@ -124,16 +132,12 @@
 
         function selectBeach(index) {
             selectedBeachIndex = index;
-            weatherData = null;
-            tideData = null;
-            hourlyWeather = null;
             render();
-            fetchData();
         }
 
         function render() {
             const beach = beaches[selectedBeachIndex];
-            const weather = weatherData?.current;
+            const weather = weatherData[selectedBeachIndex];
 
             const html = `
                 <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-4">
@@ -148,6 +152,38 @@
                                     <h1 class="text-3xl font-bold">San Diego Dog Beach Conditions</h1>
                                 </div>
                                 <p class="text-blue-100">Real-time weather, tides, and webcams</p>
+                            </div>
+
+                            <!-- Tides (shown for all beaches) -->
+                            <div class="p-6 bg-gradient-to-br from-cyan-50 to-blue-50 border-b">
+                                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                                    </svg>
+                                    Today's Tides (San Diego Bay)
+                                </h2>
+                                ${tideData && tideData.length > 0 ? `
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        ${tideData.slice(0, 4).map(tide => {
+                                            const temp = getTempAtTime(tide.t);
+                                            return `
+                                                <div class="bg-white p-4 rounded-lg border border-cyan-100">
+                                                    <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
+                                                        ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
+                                                    </p>
+                                                    <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+                                                    <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
+                                                    ${temp ? `<p class="text-xs text-gray-500 mt-1">${temp}°F</p>` : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                ` : `
+                                    <div class="bg-white p-4 rounded-lg text-center border border-cyan-100">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
+                                        <p class="text-gray-600 mt-2">Loading tide data...</p>
+                                    </div>
+                                `}
                             </div>
 
                             <!-- Beach Selection -->
@@ -203,32 +239,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Tides -->
-                                        <div class="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-100">
-                                            <h2 class="text-xl font-bold text-gray-900 mb-4">Today's Tides (San Diego Bay)</h2>
-                                            ${tideData && tideData.length > 0 ? `
-                                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                                    ${tideData.slice(0, 4).map(tide => {
-                                                        const temp = getTempAtTime(tide.t);
-                                                        return `
-                                                            <div class="bg-white p-4 rounded-lg">
-                                                                <p class="text-sm font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
-                                                                    ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
-                                                                </p>
-                                                                <p class="text-lg font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
-                                                                <p class="text-sm text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
-                                                                ${temp ? `<p class="text-xs text-gray-500 mt-1">${temp}°F</p>` : ''}
-                                                            </div>
-                                                        `;
-                                                    }).join('')}
-                                                </div>
-                                            ` : `
-                                                <div class="bg-white p-4 rounded-lg text-center">
-                                                    <p class="text-gray-600">Tide data temporarily unavailable</p>
-                                                </div>
-                                            `}
-                                        </div>
-
                                         <!-- Webcams -->
                                         <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-100">
                                             <h2 class="text-xl font-bold text-gray-900 mb-4">Live Webcams</h2>
@@ -255,10 +265,8 @@
             document.getElementById('app').innerHTML = html;
         }
 
-        // Make selectBeach available globally
         window.selectBeach = selectBeach;
 
-        // Initial load
         render();
         fetchData();
     </script>
