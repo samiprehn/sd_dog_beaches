@@ -12,7 +12,7 @@
     <script type="module">
         const beaches = [
             {
-                name: "OB Dog Beach",
+                name: "OB",
                 location: "San Diego",
                 lat: 32.7503,
                 lon: -117.2517,
@@ -21,7 +21,7 @@
                 ]
             },
             {
-                name: "Del Mar Dog Beach",
+                name: "Del Mar",
                 location: "Del Mar",
                 lat: 32.9595,
                 lon: -117.2654,
@@ -33,7 +33,7 @@
                 ]
             },
             {
-                name: "Coronado Dog Beach",
+                name: "Coronado",
                 location: "Coronado",
                 lat: 32.6859,
                 lon: -117.1831,
@@ -192,8 +192,7 @@
                                                 <p class="text-xs font-semibold mb-1 ${tide.type === 'H' ? 'text-blue-600' : 'text-orange-600'}">
                                                     ${tide.type === 'H' ? 'High Tide' : 'Low Tide'}
                                                 </p>
-                                                <p class="text-base font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
-                                                <p class="text-xs text-gray-600">${parseFloat(tide.v).toFixed(1)} ft</p>
+                                                <p class="text-base font-bold text-gray-900">${new Date(tide.t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} (${parseFloat(tide.v).toFixed(1)} ft)</p>
                                             </div>
                                         `).join('') : `
                                             <div class="bg-white p-2 rounded-lg text-center border border-cyan-100 col-span-4">
@@ -209,7 +208,7 @@
                         <!-- Beach Conditions -->
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-3">
                             <div class="bg-gradient-to-r from-amber-500 to-yellow-600 p-3 text-white">
-                                <h2 class="text-xl font-bold">Beach Conditions</h2>
+                                <h2 class="text-xl font-bold">Dog Beach Conditions</h2>
                             </div>
                             <div class="p-3">
                                 ${loading || !weatherData[0] ? `
