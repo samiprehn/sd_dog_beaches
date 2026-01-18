@@ -147,25 +147,17 @@
                 <div class="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-cyan-300 p-4">
                     <div class="max-w-6xl mx-auto">
                         <!-- Header -->
-                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6">
-                            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 text-white">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-                                    </svg>
-                                    <h1 class="text-3xl font-bold">San Diego Dog Beach Conditions</h1>
-                                </div>
-                                <p class="text-blue-100">Real-time weather, tides, and webcams</p>
-                            </div>
+                        <div class="text-center mb-6">
+                            <h1 class="text-5xl font-bold text-white drop-shadow-lg">San Diego Dog Beach Info</h1>
+                        </div>
 
-                            <!-- Tides -->
+                        <!-- Tides -->
+                        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6">
+                            <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-6 text-white">
+                                <h2 class="text-2xl font-bold">Today's Tides</h2>
+                                <p class="text-cyan-100">San Diego</p>
+                            </div>
                             <div class="p-6 bg-gradient-to-br from-cyan-50 to-blue-50">
-                                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
-                                    </svg>
-                                    Today's Tides (San Diego)
-                                </h2>
                                 ${loading ? `
                                     <div class="bg-white p-8 rounded-lg text-center border border-cyan-100">
                                         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600 mx-auto"></div>
@@ -189,6 +181,7 @@
                                     </div>
                                 `}
                             </div>
+                        </div>
                         </div>
 
                         <!-- Beach Conditions -->
