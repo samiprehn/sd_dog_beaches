@@ -24,25 +24,6 @@ A real-time web dashboard showing current conditions at San Diego's dog-friendly
 - **Water Temperature**: NOAA buoys (46266, LJAC1, SDBC1, 46235)
 - **Sunrise/Sunset**: [Sunrise-Sunset.org API](https://sunrise-sunset.org/api)
 
-## Tech Stack
-
-- Pure HTML/CSS/JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) via CDN
-- No build process required - just open the HTML file!
-
-## Usage
-
-**Option 1: Visit the live site**
-Go to https://samiprehn.github.io/sd_dog_beaches/
-
-**Option 2: Run locally**
-Clone the repo and open `index.html` in your browser:
-```bash
-git clone https://github.com/samiprehn/sd_dog_beaches.git
-cd sd_dog_beaches
-open index.html  # or just double-click the file
-```
-
 ## Mobile Optimized
 
 The interface is designed with mobile users in mind, featuring:
